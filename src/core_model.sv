@@ -10,15 +10,16 @@ module core_model
 );
 
     //Memory
-    parameter MEM_SIZE = 1024;
-    logic [MEM_SIZE-1:0] imem [31:0];
-    logic [MEM_SIZE-1:0] dmem [31:0];
+    parameter int MEM_SIZE = 1024;
+    logic [31:0] imem [MEM_SIZE-1:0];
+    logic [31:0] dmem [MEM_SIZE-1:0];
 
     //pc + instr
-    logic [XLEN-1:] pc_d;
-    logic [XLEN-1:] pc_q;
-    logic [XLEN-1:] jump_pc_d;
-    logic           jump_pc_valid_d;
+    logic [XLEN-1 : 0] pc_d;
+    logic [XLEN-1 : 0] pc_q;
+    logic [XLEN-1 : 0] jump_pc_d;
+    logic              jump_pc_valid_d;
+    logic [XLEN-1 : 0] instr_d;
 
     always_ff @(posedge clk_i) begin : pc_change_block
         if(~rstn_i) begin
@@ -29,15 +30,15 @@ module core_model
     end
 
     always_comb begin : pc_change_comb
-        pc_d <= pc_q;
+        pc_d = pc_q;
         if (jump_pc_valid_d) begin
             pc_d = jump_pc_d;
         end else begin
             pc_d = pc_q + 4;
         end
-        instr_d = imem[pc_d[$clog(MEM_SIZE)-1:0]];
+        instr_d = imem[pc_d[$clog2(MEM_SIZE)-1:0]];
     end
-
+/*
     always_comb begin : decode
         case(instr_d[6:0])
             OpcodeLui :
@@ -111,6 +112,6 @@ module core_model
 
         endcase
     end
-
+*/
 
 endmodule

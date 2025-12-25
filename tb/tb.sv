@@ -4,8 +4,12 @@ module tb ();
     logic [riscv_pkg::XLEN-1:0] data;
     logic [riscv_pkg::XLEN-1:0] pc;
     logic                       update;
+    logic                       clk;
+    logic                       rstn;
 
     core_model i_core_model(
+        .clk_i(clk),
+        .rstn_i(rstn),
         .addr_i(addr),
         .update_o(update),
         .data_o(data),
