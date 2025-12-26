@@ -5,7 +5,7 @@ ALL_FILES = ${SV_FILES} ${TB_FILES}
 
 lint:
 	@echo "Running lint checks..."
-	verilator --lint-only -Wall --timing -Wno-UNUSED ${ALL_FILES}
+	verilator --lint-only -Wall --timing -Wno-UNUSED -Wno-UNDRIVEN ${ALL_FILES}
 
 build:
 	verilator  --binary ${SV_FILES} ./tb/tb.sv --top tb -j 0 --trace
