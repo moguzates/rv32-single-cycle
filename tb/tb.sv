@@ -23,6 +23,7 @@ module tb ();
     );
 
     integer file_pointer;
+    
     initial begin
         file_pointer = $fopen("model.log","w");
         #4;
@@ -52,18 +53,68 @@ module tb ();
     initial begin
         rstn = 0;
         #4;
-        rstn =1;
-        #10000;
+        rstn = 1;
+        #3877;
+        /*
         for (int i=0; i<10; i++) begin
             addr = i;
             $display("data @ mem[0x%8h] = %8h", addr, data);
         end
+        */
+        $fclose(file_pointer);
+        #10;
+
+        check_diff_result();
+
         $finish;
     end
 
-   initial begin
-      $dumpfile("dump.vcd");
-      $dumpvars();
-   end
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars();
+    end
+    
+    task check_diff_result();
+        integer diff_file;
+        integer char;
+        logic is_empty;
+        
+        $system("diff ./model.log ./test/test.log > diff.log");
+        diff_file = $fopen("diff.log", "r");
+        
+        if (diff_file == 0) begin
+            $display("\n╔═══════════════════════════════════════════╗");
+            $display("║                                           ║");
+            $display("║     --------  TEST FAILED  --------       ║");
+            $display("║                                           ║");
+            $display("║      RTL differs from Golden Model        ║");
+            $display("║        See diff.log for details           ║");
+            $display("║                                           ║");
+            $display("╚═══════════════════════════════════════════╝\n");
+        end else begin
 
+        char = $fgetc(diff_file);
+        is_empty = (char == -1);            
+        $fclose(diff_file);
+            
+        if (is_empty) begin
+            $display("\n╔═══════════════════════════════════════════╗");
+            $display("║                                           ║");
+            $display("║     --------  TEST PASSED  --------       ║");
+            $display("║                                           ║");
+            $display("║     RTL matches Golden Model perfectly    ║");
+            $display("║                                           ║");
+            $display("╚═══════════════════════════════════════════╝\n");
+        end else begin 
+            $display("\n╔═══════════════════════════════════════════╗");
+            $display("║                                           ║");
+            $display("║     --------  TEST FAILED  --------       ║");
+            $display("║                                           ║");
+            $display("║      RTL differs from Golden Model        ║");
+            $display("║        See diff.log for details           ║");
+            $display("║                                           ║");
+            $display("╚═══════════════════════════════════════════╝\n");
+        end
+        end
+    endtask
 endmodule

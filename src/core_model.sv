@@ -1,8 +1,8 @@
 module core_model
     import riscv_pkg::*;
 (
-    input  logic clk_i,
-    input  logic rstn_i,
+    input  logic            clk_i,
+    input  logic            rstn_i,
     input  logic [XLEN-1:0] addr_i,
     output logic            update_o,
     output logic [XLEN-1:0] data_o,
@@ -16,16 +16,15 @@ module core_model
     parameter int MEM_SIZE = 2048;
     logic [31:0]       imem [MEM_SIZE-1:0];
     logic [31:0]       dmem [MEM_SIZE-1:0];
-    logic [XLEN-1 : 0] rf   [31:0]; //register file
-    initial $readmemh("./test/test.hex", imem, 0, MEM_SIZE); //read the txt and give to the imem register
+    logic [XLEN-1 : 0] rf   [31:0];
+    initial $readmemh("./test/test.hex", imem, 0, MEM_SIZE); // Load instruction memory from hex file at simulation start
 
-    //pc + instr
+    //Program Counter + Instruction
     logic [XLEN-1 : 0] pc_d;
     logic [XLEN-1 : 0] pc_q;
     logic [XLEN-1 : 0] jump_pc_d;
     logic              jump_pc_valid_d;
     logic [XLEN-1 : 0] instr_d;
-
     assign pc_o = pc_q;
     assign data_o = dmem[addr_i];
     assign instr_o = instr_d;
@@ -42,7 +41,7 @@ module core_model
     logic [XLEN-1 : 0] mem_wr_addr; // memory write address
     logic              mem_wr_enable; // register file write enable 
     
-    always_ff @(posedge clk_i) begin : pc_change
+    always_ff @(posedge clk_i) begin : pc_change_ff_fetch
         if(~rstn_i) begin
             pc_q <= 'h8000_0000;
             update_o <= '0;
@@ -52,7 +51,7 @@ module core_model
         end
     end
 
-    always_comb begin : pc_change_comb
+    always_comb begin : pc_change_comb_fetch
         pc_d = pc_q;
         if (jump_pc_valid_d) begin
             pc_d = jump_pc_d;
@@ -360,7 +359,7 @@ module core_model
         end
     end
 
-    always_ff @(posedge clk_i) begin : register_file
+    always_ff @(posedge clk_i) begin : write_back
         if(!rstn_i) begin
             for (int i=0; i<32; ++i) begin
                 rf[i] <= '0;
