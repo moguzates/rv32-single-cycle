@@ -21,5 +21,7 @@ clean:
 	@echo "Cleaning temp files..."
 	rm -f dump.vcd
 	rm -rf obj_dir
+	rm -rf ./diff.log
+	rm -rf ./model.log
 
 .PHONY: compile run wave lint clean help

@@ -24,6 +24,7 @@ package riscv_pkg;
   // Then remove them from this package
   localparam XLEN = 32; // it was cva6_config_pkg::CVA6ConfigXlen;
   localparam PLEN = (XLEN == 32) ? 34 : 56;
+  localparam MEM_SIZE = 2048;
 
   // --------------------
   // Privilege Spec

@@ -9,6 +9,8 @@ module tb ();
     logic                       update;
     logic                       clk;
     logic                       rstn;
+    logic [               31:0] imem [riscv_pkg::MEM_SIZE-1:0];
+    logic [               31:0] dmem [riscv_pkg::MEM_SIZE-1:0];
 
     core_model i_core_model(
         .clk_i(clk),
@@ -19,10 +21,16 @@ module tb ();
         .pc_o(pc),
         .instr_o(instr),
         .reg_addr_o(reg_addr),
-        .reg_data_o(reg_data)
+        .reg_data_o(reg_data),
+        .imem(imem),
+        .dmem(dmem)
     );
 
     integer file_pointer;
+    
+    initial begin
+       $readmemh("./test/test.hex", imem, 0, riscv_pkg::MEM_SIZE); // Load instruction memory from hex file at simulation start 
+    end
     
     initial begin
         file_pointer = $fopen("model.log","w");
@@ -55,12 +63,12 @@ module tb ();
         #4;
         rstn = 1;
         #3877;
-        /*
+
         for (int i=0; i<10; i++) begin
             addr = i;
             $display("data @ mem[0x%8h] = %8h", addr, data);
         end
-        */
+
         $fclose(file_pointer);
         #10;
 

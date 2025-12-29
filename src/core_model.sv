@@ -9,15 +9,13 @@ module core_model
     output logic [XLEN-1:0] pc_o,
     output logic [XLEN-1:0] instr_o,
     output logic [     4:0] reg_addr_o,
-    output logic [XLEN-1:0] reg_data_o
+    output logic [XLEN-1:0] reg_data_o,
+    output logic [    31:0] imem [MEM_SIZE-1:0],
+    output logic [    31:0] dmem [MEM_SIZE-1:0]
 );
 
     //Memory
-    parameter int MEM_SIZE = 2048;
-    logic [31:0]       imem [MEM_SIZE-1:0];
-    logic [31:0]       dmem [MEM_SIZE-1:0];
     logic [XLEN-1 : 0] rf   [31:0];
-    initial $readmemh("./test/test.hex", imem, 0, MEM_SIZE); // Load instruction memory from hex file at simulation start
 
     //Program Counter + Instruction
     logic [XLEN-1 : 0] pc_d;
