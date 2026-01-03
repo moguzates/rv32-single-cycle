@@ -3,6 +3,7 @@ module core_model
 (
     input  logic            clk_i,
     input  logic            rstn_i,
+    input  logic            irq_i,
     input  logic [XLEN-1:0] addr_i,
     output logic            update_o,
     output logic [XLEN-1:0] data_o,
@@ -17,7 +18,7 @@ module core_model
     logic [31:0]       imem [MEM_SIZE-1:0];
     logic [31:0]       dmem [MEM_SIZE-1:0];
     logic [XLEN-1 : 0] rf   [31:0];
-    initial $readmemh("./test/test.hex", imem, 0, MEM_SIZE); // Load instruction memory from hex file at simulation start
+    initial $readmemh("./test/7seg.hex", imem, 0, MEM_SIZE); // Load instruction memory from hex file at simulation start
 
     //Program Counter + Instruction
     logic [XLEN-1 : 0] pc_d;
@@ -41,12 +42,12 @@ module core_model
     logic [XLEN-1 : 0] mem_wr_addr; // memory write address
     logic              mem_wr_enable; // register file write enable 
     
-    always_ff @(posedge clk_i) begin : pc_change_ff_fetch
+    always_ff @(posedge clk_i) begin
         if(~rstn_i) begin
             pc_q <= 'h8000_0000;
-            update_o <= '0;
+        end else if (irq_i) begin
+            pc_q <= 'h8000_0000;
         end else begin
-            update_o <= '1;
             pc_q <= pc_d;
         end
     end
@@ -184,8 +185,9 @@ module core_model
             end
             OpcodeJalr : begin
                 jump_pc_valid_d = 1'b1;
-                jump_pc_d =  imm_data + rs1_data;
-                rd_data = pc_q + 4; 
+                jump_pc_d = (imm_data + rs1_data) & ~32'h1;
+                rd_data = pc_q + 4;
+                rf_wr_enable = 1'b1;
             end
             OpcodeBranch :
                 case(instr_d[14:12])
