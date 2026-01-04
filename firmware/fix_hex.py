@@ -2,11 +2,11 @@ import sys
 
 def fix():
     try:
-        with open('./test/7seg.hex', 'r') as f:
+        with open('./test/bare_metal.hex', 'r') as f:
             raw_words = f.read().split()
             data_bytes = [w for w in raw_words if not w.startswith('@')]
         
-        with open('./test/7seg.hex', 'w') as f:
+        with open('./test/bare_metal.hex', 'w') as f:
             buf = []
             for b in data_bytes:
                 buf.append(b)

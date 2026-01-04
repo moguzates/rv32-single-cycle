@@ -14,7 +14,7 @@ lint:
 firmware:
 	@echo "C kodu derleniyor..."
 	$(CC) $(CFLAGS) ./firmware/main.c -o ./firmware/main.elf
-	$(OBJCOPY) -O verilog --change-addresses -0x80000000 ./firmware/main.elf ./test/7seg.hex
+	$(OBJCOPY) -O verilog --change-addresses -0x80000000 ./firmware/main.elf ./test/bare_metal.hex
 	@echo "Hex formatting..."
 	@python3 ./firmware/fix_hex.py
 	@echo "Hex file is done!"

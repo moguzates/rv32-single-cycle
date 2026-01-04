@@ -47,52 +47,36 @@ module tb ();
         irq = 0;
         */
 
-        #5000000;
+        #50000000;
         $display("\n[TB] Simulation Timeout.");
         $finish;
     end
 
     always @(posedge clk) begin
-        // Debugging line to track instruction flow
-        if (rstn) $display("[DEBUG] PC: 0x%h | Instr: 0x%h", pc, instr);
-
-        // Catch EBREAK instruction (0x00100073) to terminate
-        if (rstn && (instr == 32'h00100073)) begin
-            $display("\n[TB] >>> EBREAK DETECTED. PROGRAM EXECUTED SUCCESSFULLY. <<<");
-            $display("[TB] Final PC: 0x%h", pc);
-            #10;
-            $finish;
-        end
-
         if (i_core_model.mem_wr_enable && (i_core_model.mem_wr_addr == 32'h400)) begin
-            
             if (i_core_model.mem_wr_data[6:0] != last_data) begin
                 last_data = i_core_model.mem_wr_data[6:0];
                 
-                //$write("\033[H\033[J"); 
-                $display("====================================");
-                $display("     RISC-V 7-SEGMENT MONITOR       ");
-                $display("====================================");
-                $display("  Sim Time : %0t ps", $time);
-                $display("  PC Value : 0x%h", pc);
-                $display("------------------------------------");
-                
+                $display("\n--- The Number 0x%h ---", last_data);
                 case (last_data)
-                    7'h3F: $display("        -- \n       |  | \n            \n       |  | \n        --    [ 0 ]");
-                    7'h06: $display("           \n          | \n            \n          | \n              [ 1 ]");
-                    7'h5B: $display("        -- \n          | \n        -- \n       |    \n        --    [ 2 ]");
-                    7'h4F: $display("        -- \n          | \n        -- \n          | \n        --    [ 3 ]");
-                    7'h66: $display("           \n       |  | \n        -- \n          | \n              [ 4 ]");
-                    7'h6D: $display("        -- \n       |    \n        -- \n          | \n        --    [ 5 ]");
-                    7'h7D: $display("        -- \n       |    \n        -- \n       |  | \n        --    [ 6 ]");
-                    7'h07: $display("        -- \n          | \n            \n          | \n              [ 7 ]");
-                    7'h7F: $display("        -- \n       |  | \n        -- \n       |  | \n        --    [ 8 ]");
-                    7'h6F: $display("        -- \n       |  | \n        -- \n          | \n        --    [ 9 ]");
-                    default: $display("     UNKNOWN VALUE: 0x%h", last_data);
+                    7'h3F: $display("  -- \n |  | \n |  | \n  --  [ 0 ]");
+                    7'h06: $display("     \n    | \n    | \n      [ 1 ]");
+                    7'h5B: $display("  -- \n    | \n  -- \n |    \n  --  [ 2 ]");
+                    7'h4F: $display("  -- \n    | \n  -- \n    | \n  --  [ 3 ]");
+                    7'h66: $display("     \n |  | \n  -- \n    | \n      [ 4 ]");
+                    7'h6D: $display("  -- \n |    \n  -- \n    | \n  --  [ 5 ]");
+                    7'h7D: $display("  -- \n |    \n  -- \n |  | \n  --  [ 6 ]");
+                    7'h07: $display("  -- \n    | \n     \n    | \n      [ 7 ]");
+                    7'h7F: $display("  -- \n |  | \n  -- \n |  | \n  --  [ 8 ]");
+                    7'h6F: $display("  -- \n |  | \n  -- \n    | \n  --  [ 9 ]");
+                    default: $display(" VERI: 0x%h", last_data);
                 endcase
-                $display("------------------------------------");
-                $display("====================================");
             end
+        end
+
+        if (rstn && (instr == 32'h00100073)) begin
+            $display("\n[TB] >>> PROGRAM BITTI (EBREAK) <<<");
+            $finish;
         end
     end
 
